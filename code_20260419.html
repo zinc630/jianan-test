@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建安风骨测试 | 荣格八维人格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f5efe6;
+            font-family: "Microsoft YaHei", serif;
+            color: #2e241f;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fffef7;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            padding: 24px 28px 40px;
+        }
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 2px;
+            color: #6b3e26;
+        }
+        .title-wrapper {margin-bottom: 20px;text-align: center;}
+        .sub {
+            text-align: center;
+            color: #8b6946;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .progress-bar-wrap {
+            width: 100%;
+            height: 10px;
+            background: #e8dcca;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #b48b5a;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        .question-card {
+            background: #fefaf2;
+            border-radius: 28px;
+            padding: 30px 24px;
+            margin: 30px 0;
+            border: 1px solid #efe2d0;
+            min-height: 300px;
+        }
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            padding-left: 12px;
+            border-left: 5px solid #b48b5a;
+            color: #3e2a1f;
+            line-height: 1.8;
+        }
+        .options {display: flex;flex-direction: column;gap: 16px;}
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: #fff;
+            padding: 14px 18px;
+            border-radius: 48px;
+            border: 1px solid #e7d9cb;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option:hover {background: #f5ede2;}
+        input[type="radio"] {
+            margin-top: 5px;
+            accent-color: #9b6e42;
+            transform: scale(1.15);
+            pointer-events: none;
+        }
+        .btn-group {display: flex;gap: 15px;margin-top: 20px;}
+        button {
+            flex: 1;
+            background: #9b6e42;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+            padding: 12px 0;
+            border-radius: 48px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button.prev-btn {background: #c0a080;}
+        button.finish-btn {background: #a0522d;}
+
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            padding: 15px;
+            transition: 0.2s;
+        }
+        .modal-mask.active {visibility: visible;opacity: 1;}
+        .modal-container {
+            background: #fffef5;
+            max-width: 520px;
+            width: 100%;
+            border-radius: 28px;
+            padding: 25px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .radar-box {width: 300px;height: 300px;margin: 10px auto;}
+        .type-tag {font-size: 16px;color: #9b6e42;margin: 8px 0;}
+        .history-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #6b3e26;
+            margin: 10px 0;
+        }
+        .poem-block{
+            text-align: center;
+            line-height: 1.8;
+            margin: 12px 0;
+            padding: 12px;
+            background: #f0e6d2;
+            border-radius: 16px;
+            font-style: italic;
+            color: #8c5d2b;
+        }
+        .intro-block,.trait-block,.score-list {
+            text-align: left;
+            line-height: 1.8;
+            margin: 12px 0;
+            padding: 12px;
+            background: #f8f1e4;
+            border-radius: 16px;
+        }
+        .title-sm {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #9b6e42;
+        }
+        .close-wrap{
+            text-align: center;
+            margin-top: 15px;
+        }
+        .close-modal {
+            padding: 10px 28px;
+            display: inline-block;
+        }
+        .q-item {display: none;}
+        .q-item.active {display: block;}
+
+        /* 八维进度条样式 */
+        .score-item {margin: 8px 0;}
+        .score-top {display: flex;justify-content: space-between;font-size: 14px;margin-bottom: 4px;}
+        .bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #e0d4c2;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: #9b6e42;
+            border-radius: 4px;
+            transition: 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title-wrapper">
+        <h1>🏮 建安风骨八维测试</h1>
+    </div>
+    <div class="sub">📜 邺下风流 · 荣格八维心性图鉴</div>
+
+    <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+    </div>
+    <div style="text-align:center;margin-bottom:10px;color:#8b6942">
+        <span id="pageTip">第 1 / 48 题</span>
+    </div>
+
+    <div id="questionsWrap"></div>
+
+    <div class="btn-group">
+        <button class="prev-btn" id="prevBtn">← 上一题</button>
+        <button id="nextBtn">下一题 →</button>
+    </div>
+</div>
+
+<div id="resultModal" class="modal-mask">
+    <div class="modal-container" id="modalContent"></div>
+</div>
+
+<script>
+// 荣格八维：Ti Te Fi Fe Ni Ne SiSe
+// 共48题，每项6题，数据更精准
+const questionsData = [
+    // Ti 内倾思考
+    {text:"遇到不合理的规矩，你会优先拆解逻辑漏洞吗？",dim:"Ti",opts:["A. 一定会深究逻辑","B. 偶尔思考","C. 不在意逻辑"],scores:[{Ti:2},{Ti:0},{Ti:-2}]},
+    {text:"争论时，你更在意道理本身而非人情面子？",dim:"Ti",opts:["A. 道理至上","B. 各让一步","C. 顾及情面"],scores:[{Ti:2},{Ti:0},{Ti:-2}]},
+    {text:"喜欢独自复盘、梳理前因后果与漏洞？",dim:"Ti",opts:["A. 经常如此","B. 偶尔","C. 很少"],scores:[{Ti:2},{Ti:0},{Ti:-2}]},
+    {text:"看待事物习惯客观抽离，不带个人情绪？",dim:"Ti",opts:["A. 习惯抽离理性","B. 适中","C. 容易带入情绪"],scores:[{Ti:2},{Ti:0},{Ti:-2}]},
+    {text:"面对错误，优先指出问题本质而非安慰？",dim:"Ti",opts:["A. 直指问题核心","B. 先安抚再纠正","C. 不愿指责"],scores:[{Ti:2},{Ti:0},{Ti:-2}]},
+    {text:"偏爱理性分析、推演原理而非感性感受？",dim:"Ti",opts:["A. 非常偏爱","B. 平衡","C. 更喜欢感受"],scores:[{Ti:2},{Ti:0},{Ti:-2}]},
+
+    // Te 外倾思考
+    {text:"集体事务混乱，你会主动制定规则提高效率？",dim:"Te",opts:["A. 主动规整秩序","B. 配合他人安排","C. 顺其自然"],scores:[{Te:2},{Te:0},{Te:-2}]},
+    {text:"做事讲究效率、目标、结果优先？",dim:"Te",opts:["A. 结果效率第一","B. 过程体验并重","C. 随性无所谓"],scores:[{Te:2},{Te:0},{Te:-2}]},
+    {text:"习惯明确分工、按时完成、拒绝拖延？",dim:"Te",opts:["A. 极强自律规划","B. 普通节奏","C. 拖延随性"],scores:[{Te:2},{Te:0},{Te:-2}]},
+    {text:"待人处事果断，不喜欢模糊纠结？",dim:"Te",opts:["A. 干脆果断","B. 犹豫权衡","C. 长期内耗"],scores:[{Te:2},{Te:0},{Te:-2}]},
+    {text:"善于统筹安排、推动事情落地执行？",dim:"Te",opts:["A. 擅长统筹推进","B. 只能管好自己","C. 不爱管事"],scores:[{Te:2},{Te:0},{Te:-2}]},
+    {text:"对错标准偏向客观标准与世俗规则？",dim:"Te",opts:["A. 遵循客观规则","B. 情理结合","C. 随心定义"],scores:[{Te:2},{Te:0},{Te:-2}]},
+
+    // Fi 内倾情感
+    {text:"行事优先遵从自身本心与价值观？",dim:"Fi",opts:["A. 本心至上","B. 兼顾现实","C. 迎合外界"],scores:[{Fi:2},{Fi:0},{Fi:-2}]},
+    {text:"内心敏感细腻，容易被细节情绪打动？",dim:"Fi",opts:["A. 极易共情敏感","B. 适度感性","C. 情绪钝感"],scores:[{Fi:2},{Fi:0},{Fi:-2}]},
+    {text:"厌恶虚伪应酬，重视精神契合的关系？",dim:"Fi",opts:["A. 极度反感虚假","B. 勉强应付","C. 圆滑处世"],scores:[{Fi:2},{Fi:0},{Fi:-2}]},
+    {text:"难过习惯独自消化，不轻易外露心事？",dim:"Fi",opts:["A. 独自内收消化","B. 选择性倾诉","C. 遇事直说"],scores:[{Fi:2},{Fi:0},{Fi:-2}]},
+    {text:"有强烈个人底线，绝不违背本心妥协？",dim:"Fi",opts:["A. 死守底线初心","B. 适当妥协变通","C. 轻易让步"],scores:[{Fi:2},{Fi:0},{Fi:-2}]},
+    {text:"偏爱安静自省，探索内心感受与情绪？",dim:"Fi",opts:["A. 常常内观自省","B. 偶尔感慨","C. 很少关注内心"],scores:[{Fi:2},{Fi:0},{Fi:-2}]},
+
+    // Fe 外倾情感
+    {text:"擅长照顾他人情绪，维持氛围和谐？",dim:"Fe",opts:["A. 主动调和氛围","B. 保持礼貌距离","C. 不在意氛围"],scores:[{Fe:2},{Fe:0},{Fe:-2}]},
+    {text:"在意他人评价，容易为群体感受考虑？",dim:"Fe",opts:["A. 优先顾及众人","B. 平衡自我与他人","C. 只在乎自己"],scores:[{Fe:2},{Fe:0},{Fe:-2}]},
+    {text:"待人温和包容，善于安慰、共情他人？",dim:"Fe",opts:["A. 温柔包容共情","B. 礼貌客气","C. 冷淡疏离"],scores:[{Fe:2},{Fe:0},{Fe:-2}]},
+    {text:"融入集体很快，懂得人情世故往来？",dim:"Fe",opts:["A. 擅长融入合群","B. 慢热有限社交","C. 抗拒群体"],scores:[{Fe:2},{Fe:0},{Fe:-2}]},
+    {text:"冲突发生时，优先缓和矛盾减少伤害？",dim:"Fe",opts:["A. 优先化解矛盾","B. 讲道理分对错","C. 冷眼旁观"],scores:[{Fe:2},{Fe:0},{Fe:-2}]},
+    {text:"重视情义、礼节、人际维系与往来？",dim:"Fe",opts:["A. 重情重礼","B. 简单相处","C. 淡漠寡情"],scores:[{Fe:2},{Fe:0},{Fe:-2}]},
+
+    // Ni 内倾直觉
+    {text:"容易预感未来走向，直觉预判很强？",dim:"Ni",opts:["A. 直觉预判极强","B. 偶尔有预感","C. 只信眼见"],scores:[{Ni:2},{Ni:0},{Ni:-2}]},
+    {text:"喜欢深挖本质、长远因果与深层寓意？",dim:"Ni",opts:["A. 执着本质根源","B. 看表层即可","C. 只看当下"],scores:[{Ni:2},{Ni:0},{Ni:-2}]},
+    {text:"想法内敛深沉，擅长长期规划与远见？",dim:"Ni",opts:["A. 擅长长线布局","B. 短期规划","C. 走一步看一步"],scores:[{Ni:2},{Ni:0},{Ni:-2}]},
+    {text:"偏爱安静思考、遐想未来与宿命感？",dim:"Ni",opts:["A. 常常深度遐想","B. 偶尔思考长远","C. 务实不空想"],scores:[{Ni:2},{Ni:0},{Ni:-2}]},
+    {text:"容易举一反三，看透表象背后规律？",dim:"Ni",opts:["A. 快速洞察规律","B. 慢慢理解","C. 很难联想"],scores:[{Ni:2},{Ni:0},{Ni:-2}]},
+    {text:"性格内敛克制，心思深沉不外露？",dim:"Ni",opts:["A. 深沉隐忍内敛","B. 适度表达","C. 直率外露"],scores:[{Ni:2},{Ni:0},{Ni:-2}]},
+
+    // Ne 外倾直觉
+    {text:"脑洞丰富，联想力强，想法多变跳跃？",dim:"Ne",opts:["A. 脑洞联想超多","B. 思路平稳","C. 想法单一"],scores:[{Ne:2},{Ne:0},{Ne:-2}]},
+    {text:"喜欢新鲜事物、多元观点与不同可能性？",dim:"Ne",opts:["A. 热衷尝试新事物","B. 接受适度变化","C. 抗拒改变"],scores:[{Ne:2},{Ne:0},{Ne:-2}]},
+    {text:"擅长发散思维，一件事想出多种方案？",dim:"Ne",opts:["A. 发散多选","B. 常规思路","C. 固定单一模式"],scores:[{Ne:2},{Ne:0},{Ne:-2}]},
+    {text:"讨厌一成不变，容易厌倦重复琐事？",dim:"Ne",opts:["A. 极度厌恶重复","B. 可以忍耐","C. 习惯安稳重复"],scores:[{Ne:2},{Ne:0},{Ne:-2}]},
+    {text:"谈吐灵活，思维跳脱，善于即兴发挥？",dim:"Ne",opts:["A. 灵动即兴","B. 稳重保守","C. 刻板拘谨"],scores:[{Ne:2},{Ne:0},{Ne:-2}]},
+    {text:"兴趣广泛，容易被新灵感、新方向吸引？",dim:"Ne",opts:["A. 兴趣广泛多变","B. 专注少量爱好","C. 喜好固定单一"],scores:[{Ne:2},{Ne:0},{Ne:-2}]},
+
+    // Si 内倾实感
+    {text:"重视过往经验，习惯参考旧例判断？",dim:"Si",opts:["A. 高度依赖经验","B. 经验参考一半","C. 不爱被过去束缚"],scores:[{Si:2},{Si:0},{Si:-2}]},
+    {text:"念旧重回忆，留恋旧事、旧物、旧情？",dim:"Si",opts:["A. 极度念旧","B. 偶尔怀念","C. 向前看不念过往"],scores:[{Si:2},{Si:0},{Si:-2}]},
+    {text:"生活作息规律，偏爱安稳熟悉的节奏？",dim:"Si",opts:["A. 追求安稳规律","B. 松紧结合","C. 喜欢变动刺激"],scores:[{Si:2},{Si:0},{Si:-2}]},
+    {text:"细心记住细节、过往对话与琐碎小事？",dim:"Si",opts:["A. 细节记忆极强","B. 记住重点","C. 容易健忘马虎"],scores:[{Si:2},{Si:0},{Si:-2}]},
+    {text:"遵从传统、礼法、惯例与固有习惯？",dim:"Si",opts:["A. 恪守传统惯例","B. 择善而从","C. 反感束缚传统"],scores:[{Si:2},{Si:0},{Si:-2}]},
+    {text:"做事稳重保守，不喜冒险激进？",dim:"Si",opts:["A. 保守求稳","B. 适度冒险","C. 冲动大胆"],scores:[{Si:2},{Si:0},{Si:-2}]},
+
+    // Se 外倾实感
+    {text:"敏锐感知当下环境、氛围、身体感受？",dim:"Se",opts:["A. 极度敏锐觉察","B. 普通感知","C. 粗线条迟钝"],scores:[{Se:2},{Se:0},{Se:-2}]},
+    {text:"享受当下玩乐、宴饮、山水实景体验？",dim:"Se",opts:["A. 热爱当下体验","B. 适中享受","C. 偏爱精神遐想"],scores:[{Se:2},{Se:0},{Se:-2}]},
+    {text:"行动力强，反应迅速，临场应变快？",dim:"Se",opts:["A. 临场反应极强","B. 中规中矩","C. 临场容易慌乱"],scores:[{Se:2},{Se:0},{Se:-2}]},
+    {text:"直率随性，活在当下，不纠结长远忧虑？",dim:"Se",opts:["A. 活在当下洒脱","B. 思虑周全","C. 过度焦虑未来"],scores:[{Se:2},{Se:0},{Se:-2}]},
+    {text:"擅长动手实操、临场行动、实景应对？",dim:"Se",opts:["A. 实操行动强悍","B. 理论更强","C. 动手能力弱"],scores:[{Se:2},{Se:0},{Se:-2}]},
+    {text:"性格外放直白，喜怒哀乐多表现在外？",dim:"Se",opts:["A. 直率外放","B. 内敛克制","C. 心事深藏"],scores:[{Se:2},{Se:0},{Se:-2}]}
+];
+
+// 16人格 + 八维倾向+诗句+简介
+const personMap = {
+    ISTJ:{name:"荀彧",title:"王佐贤臣",poem:"心存汉室千秋义，智辅曹公万里疆。",desc:"曹魏儒雅谋臣，守礼重道，沉稳忠贞。",trait:"Si主导+Ti辅助，守序严谨、重经验、逻辑内敛、务实稳重。"},
+    ISFJ:{name:"蔡文姬",title:"乱世才女",poem:"欲死不能得，欲生无一可。",desc:"汉末悲情才女，命运坎坷，温柔坚韧。",trait:"Si主导+Fe辅助，温柔念旧、共情细腻、守礼包容、隐忍和善。"},
+    INFJ:{name:"甄宓",title:"洛神佳人",poem:"翩若惊鸿，婉若游龙。",desc:"邺下清冷美人，诗意哀愁，心思深远。",trait:"Ni主导+Fe辅助，洞察深远、理想温柔、内敛悲悯、气质清冷。"},
+    INTJ:{name:"司马懿",title:"深谋鬼才",poem:"深藏锋芒数十载，一朝风起定乾坤。",desc:"乱世顶级谋略家，隐忍布局，城府深沉。",trait:"Ni主导+Ti辅助，长线远见、理智冷感、克制隐忍、擅于谋划。"},
+    ISTP:{name:"徐庶",title:"隐世谋士",poem:"一身才智藏山野，不问红尘乱世秋。",desc:"淡泊避世，看透纷争，低调自保。",trait:"Ti主导+Se辅助，冷静抽离、实操力强、随性寡言、看破世俗。"},
+    ISFP:{name:"刘桢",title:"松柏寒士",poem:"岂不罹凝寒，松柏有本性。",desc:"建安傲骨文人，清高不屈，不媚权贵。",trait:"Fi主导+Se辅助，傲骨感性、审美独特、随性淡然、宁折不弯。"},
+    INFP:{name:"阮籍",title:"竹林风流",poem:"夜中不能寐，起坐弹鸣琴。",desc:"疏放避世，追求本心自由，多情敏感。",trait:"Fi主导+Ni辅助，理想浪漫、思想深邃、厌俗敏感、精神丰盈。"},
+    INTP:{name:"曹植",title:"八斗诗仙",poem:"捐躯赴国难，视死忽如归。",desc:"建安文学巅峰，才情绝世，浪漫悲情。",trait:"Ti主导+Ne辅助，思维通透、脑洞丰富、理想纯粹、疏离清雅。"},
+    ESTJ:{name:"曹操",title:"乱世枭雄",poem:"老骥伏枥，志在千里。",desc:"曹魏奠基霸主，雄才大略，杀伐果决。",trait:"Te主导+Si辅助，目标极强、秩序严明、务实霸道、行事果决。"},
+    ESFJ:{name:"卞夫人",title:"温婉贤后",poem:"雍容识大体，德韵润流年。",desc:"乱世温柔底色，端庄宽厚，调和人心。",trait:"Fe主导+Si辅助，和善合群、顾及人情、稳重温和、顾全大局。"},
+    ENFJ:{name:"王粲",title:"七子之冠",poem:"路饥人相食，白骨蔽平原。",desc:"建安文坛领袖，心怀苍生，诗文悲悯。",trait:"Fe主导+Ni辅助，共情苍生、远见温柔、擅长凝聚、心怀大义。"},
+    ENTJ:{name:"曹丕",title:"文德帝王",poem:"秋风萧瑟天气凉，草木摇落露为霜。",desc:"文武兼备，善权谋制衡，隐忍有谋。",trait:"Te主导+Ni辅助，格局宏大、理智隐忍、布局长远、野心内敛。"},
+    ESTP:{name:"夏侯惇",title:"刚烈猛将",poem:"拔矢啖睛尤血战，一生忠勇定中原。",desc:"曹魏忠勇猛将，性情豪迈，行事干脆。",trait:"Se主导+Te辅助，行动力爆炸、直率刚烈、临场强悍、务实洒脱。"},
+    ESFP:{name:"曹彰",title:"北地虎将",desc:"骁勇好武，心性纯粹直白，不喜权谋。",trait:"Se主导+Fe辅助，热情外放、活在当下、直白温柔、自由不羁。"},
+    ENTP:{name:"孔融",title:"傲骨名士",poem:"言直轻权贵，名高振汉庭。",desc:"汉末清流名士，刚直敢言，才思敏捷。",trait:"Ne主导+Ti辅助，思维跳脱、言辞犀利、叛逆敢言、脑洞开阔。"},
+    ENFP:{name:"杨修",title:"风流才子",poem:"才高多敏思，性傲误平生。",desc:"恃才放旷，灵动敏感，才情斐然。",trait:"Ne主导+Fi辅助，灵感充沛、感性敏锐、个性张扬、理想浪漫。"}
+};
+
+let currentPage = 0;
+const totalQ = questionsData.length;
+const answerRecord = {};
+
+function renderAllQuestion(){
+    const wrap = document.getElementById("questionsWrap");
+    wrap.innerHTML = "";
+    questionsData.forEach((q,idx)=>{
+        const div = document.createElement("div");
+        div.className = `q-item ${idx===0?'active':''}`;
+        let optHtml = '';
+        q.opts.forEach((o,i)=>{
+            optHtml += `
+            <div class="option" data-idx="${i}" data-qid="${idx}">
+                <input type="radio" name="q${idx}" id="q${idx}${i}" value="${i}">
+                <label for="q${idx}${i}">${o}</label>
+            </div>
+            `;
+        });
+        div.innerHTML = `
+        <div class="question-card">
+            <div class="question-text">${q.text}</div>
+            <div class="options">${optHtml}</div>
+        </div>`;
+        wrap.appendChild(div);
+    });
+    bindOptionClick();
+}
+
+// 绑定整块选项点击
+function bindOptionClick(){
+    document.querySelectorAll(".option").forEach(item=>{
+        item.addEventListener("click",function(){
+            const qid = this.dataset.qid;
+            const idx = this.dataset.idx;
+            const radio = document.querySelector(`input[name="q${qid}"][value="${idx}"]`);
+            radio.checked = true;
+            answerRecord[qid] = Number(idx);
+            // 最后一题直接出结果
+            if(currentPage >= totalQ - 1){
+                calcResult();
+            }else{
+                nextPage();
+            }
+        })
+    })
+}
+
+// 查看结果按钮
+document.getElementById("nextBtn").addEventListener("click",function(){
+    if(currentPage >= totalQ - 1){
+        calcResult();
+    }else{
+        nextPage();
+    }
+});
+
+function updateUI(){
+    document.getElementById("pageTip").innerText = `第 ${currentPage+1}/${totalQ} 题`;
+    document.getElementById("progressBar").style.width = `${(currentPage+1)/totalQ*100}%`;
+    document.querySelectorAll(".q-item").forEach((item,i)=>{
+        item.classList.toggle("active",i===currentPage);
+    });
+    const nextBtn = document.getElementById("nextBtn");
+    if(currentPage === totalQ - 1){
+        nextBtn.innerText = "查看结果 📜";
+        nextBtn.classList.add("finish-btn");
+    }else{
+        nextBtn.innerText = "下一题 →";
+        nextBtn.classList.remove("finish-btn");
+    }
+    // 回填已选答案
+    if(answerRecord[currentPage] !== undefined){
+        document.querySelector(`input[name="q${currentPage}"][value="${answerRecord[currentPage]}"]`).checked = true;
+    }
+}
+
+function prevPage(){if(currentPage>0){currentPage--;updateUI();}}
+function nextPage(){currentPage++;updateUI();}
+
+// 计算荣格八维分数 0-100%
+function calcResult(){
+    let Ti=0,Te=0,Fi=0,Fe=0;
+    let Ni=0,Ne=0,Si=0,Se=0;
+
+    for(let i=0;i<totalQ;i++){
+        let v = answerRecord[i];
+        if(v === undefined) continue;
+        let d = questionsData[i].dim;
+        let s = questionsData[i].scores[v];
+        switch(d){
+            case "Ti":Ti+=s.Ti;break;
+            case "Te":Te+=s.Te;break;
+            case "Fi":Fi+=s.Fi;break;
+            case "Fe":Fe+=s.Fe;break;
+            case "Ni":Ni+=s.Ni;break;
+            case "Ne":Ne+=s.Ne;break;
+            case "Si":Si+=s.Si;break;
+            case "Se":Se+=s.Se;break;
+        }
+    }
+
+    const maxSingle = 12;
+    const score = {
+        Ti:Math.round((Ti+maxSingle)/maxSingle*50),
+        Te:Math.round((Te+maxSingle)/maxSingle*50),
+        Fi:Math.round((Fi+maxSingle)/maxSingle*50),
+        Fe:Math.round((Fe+maxSingle)/maxSingle*50),
+        Ni:Math.round((Ni+maxSingle)/maxSingle*50),
+        Ne:Math.round((Ne+maxSingle)/maxSingle*50),
+        Si:Math.round((Si+maxSingle)/maxSingle*50),
+        Se:Math.round((Se+maxSingle)/maxSingle*50)
+    };
+
+    // MBTI判定
+    let E = score.Te > score.Si || score.Fe > score.Si;
+    let N = score.Ni > score.Si || score.Ne > score.Si;
+    let T = score.Ti > score.Fi || score.Te > score.Fe;
+    let J = score.Te > score.Ne || score.Si > score.Ne;
+
+    let code = (E?"E":"I") + (N?"N":"S") + (T?"T":"F") + (J?"J":"P");
+    drawOctRadar(score,code);
+}
+
+// 八边形雷达图
+function drawOctRadar(score,code){
+    const info = personMap[code];
+    const canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 300;
+    const ctx = canvas.getContext("2d");
+    const cx = 150, cy = 150, r = 110;
+
+    const keys = ["Ti","Te","Se","Fi","Fe","Si","Ne","Ni"];
+    const nameCn = ["内倾思考","外倾思考","外倾实感","内倾情感","外倾情感","内倾实感","外倾直觉","内倾直觉"];
+    const angle = [0,45,90,135,180,225,270,315];
+
+    ctx.strokeStyle = "#ddd";
+    for(let d=0.2;d<=1;d+=0.2){
+        drawOct(ctx,cx,cy,r*d);
+    }
+
+    ctx.fillStyle = "#6b3e26";
+    ctx.font = "13px sans-serif";
+    keys.forEach((k,i)=>{
+        let rad = angle[i] * Math.PI / 180;
+        let x = cx + Math.cos(rad) * (r+18);
+        let y = cy + Math.sin(rad) * (r+18);
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+        ctx.fillText(nameCn[i],x,y);
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.lineTo(cx+Math.cos(rad)*r, cy+Math.sin(rad)*r);
+        ctx.strokeStyle="#ccc";
+        ctx.stroke();
+    });
+
+    const val = keys.map(k=>score[k]/100);
+    ctx.beginPath();
+    val.forEach((v,i)=>{
+        let rad = angle[i] * Math.PI / 180;
+        let x = cx + Math.cos(rad)*r*v;
+        let y = cy + Math.sin(rad)*r*v;
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = "rgba(180,139,90,0.25)";
+    ctx.fill();
+    ctx.strokeStyle = "#9b6e42";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 八维进度条
+    let scoreHtml = "";
+    const list = [
+        {k:"Ti",n:"内倾思考"},{k:"Te",n:"外倾思考"},
+        {k:"Fi",n:"内倾情感"},{k:"Fe",n:"外倾情感"},
+        {k:"Ni",n:"内倾直觉"},{k:"Ne",n:"外倾直觉"},
+        {k:"Si",n:"内倾实感"},{k:"Se",n:"外倾实感"}
+    ];
+    list.forEach(item=>{
+        let per = score[item.k];
+        scoreHtml += `
+        <div class="score-item">
+            <div class="score-top">
+                <span>${item.n}(${item.k})</span>
+                <span>${per}%</span>
+            </div>
+            <div class="bar-bg">
+                <div class="bar-fill" style="width:${per}%"></div>
+            </div>
+        </div>
+        `;
+    });
+
+    const html = `
+        <div class="type-tag">你的MBTI人格：${code}</div>
+        <div class="history-name">${info.name} · ${info.title}</div>
+        ${info.poem ? `<div class="poem-block">「${info.poem}」</div>` : ""}
+        <div class="radar-box"></div>
+
+        <div class="score-list">
+            <div class="title-sm">📊 荣格八维百分比数值</div>
+            ${scoreHtml}
+        </div>
+
+        <div class="intro-block">
+            <div class="title-sm">📜 对应历史人物简介</div>
+            <div>${info.desc}</div>
+        </div>
+
+        <div class="trait-block">
+            <div class="title-sm">✨ 八维核心人格特质</div>
+            <div>${info.trait}</div>
+        </div>
+
+        <div class="close-wrap">
+            <button class="close-modal" onclick="closeModal()">关闭</button>
+        </div>
+    `;
+    document.getElementById("modalContent").innerHTML = html;
+    document.querySelector(".radar-box").appendChild(canvas);
+    document.getElementById("resultModal").classList.add("active");
+}
+
+// 绘制八边形
+function drawOct(ctx,x,y,r){
+    ctx.beginPath();
+    for(let i=0;i<8;i++){
+        let rad = (45*i) * Math.PI / 180;
+        let px = x + Math.cos(rad)*r;
+        let py = y + Math.sin(rad)*r;
+        i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+}
+
+window.closeModal = function(){
+    document.getElementById("resultModal").classList.remove("active");
+}
+
+document.getElementById("prevBtn").onclick = prevPage;
+
+// 初始化
+renderAllQuestion();
+updateUI();
+</script>
+</body>
+</html>
